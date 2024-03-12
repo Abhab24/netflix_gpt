@@ -1,10 +1,10 @@
-import './App.css';
+import Header from './components/Header';
+import Body from './components/Body';
 
 function App() {
   return (
-    <div className="App text-center bg-red-400">
-      abha is good
-    </div>
+    <Header/>,
+    <Body/>
   );
 }
 
