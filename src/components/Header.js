@@ -1,20 +1,23 @@
 import { signOut } from "firebase/auth";
 import { auth } from "../utils/firebase";
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect } from "react";
+import { onAuthStateChanged } from "firebase/auth";
+import { addUser,removeUser } from "../utils/userSlice";
 
 const Header = () => {
   //give absolute for header to overlap
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const user = useSelector(store=>store.user);
-  console.log(user);
+  //console.log(user);
 
-  //SIGN OUT
+ // SIGN OUT
   const handleSignOut = () => {
     signOut(auth)
       .then(() => {
-        // if Sign-out success
-        navigate("/");
+        // if Sign-out success //no need to navigate from here that will be done by onauthstatechange() so it is empty
       })
       .catch((error) => {
         //else error happened.
@@ -22,6 +25,39 @@ const Header = () => {
         console.log(error);
       });
   };
+
+    //UPDATING USER DATA IN REDUX STORE ON AUTHENTICATION(CODE FROM FB DOCS)
+    useEffect(() => {
+      //each time this compo is loading(this page is loaded) its checking the auth of the user
+      //as we want to use this event listener for once only after compo loads
+      const unsubscribe = onAuthStateChanged(auth, (user) => {//onauthstate..event has unsubscribe() fn from docs which will be returned
+        //unsubsribing is done to remove this event from site if header compo gets unmounted 
+        //API call
+        if (user) {
+          //if user SIGN IN /UP
+          const { uid, email, displayName, photoURL } = user;
+          dispatch(
+            addUser({
+              uid: uid,
+              email: email,
+              displayName: displayName,
+              photoURL: photoURL,
+            })
+          ); //adding user data to store ..u can add many data
+          //reducer fn(action)
+    navigate("/browse"); //after creating acc in fb/logging in reloacating user to the browse page using navigate fn
+
+        } else {
+          // if User SIGN OUT
+          dispatch(removeUser());//no action req in this
+          navigate("/");//redirecting to login page again
+        }
+      });
+//unsubscribe when compo unmounts
+      return ()=> unsubscribe();//if we call unsubscribe fn it will remove the onauth.. event from our browser
+
+    }, []);
+  
 
   return (
     <div className="absolute w-full px-8 py-2 z-10 flex justify-between">

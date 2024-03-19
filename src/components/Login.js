@@ -6,7 +6,6 @@ import {
   signInWithEmailAndPassword,
 } from "firebase/auth";
 import { auth } from "../utils/firebase";
-import { useNavigate } from "react-router-dom";
 import { updateProfile } from "firebase/auth";
 import { useDispatch } from "react-redux";
 import { addUser } from "../utils/userSlice";
@@ -14,7 +13,6 @@ import { addUser } from "../utils/userSlice";
 const Login = () => {
   const [isSignInForm, setisSignInForm] = useState(true); //by default form will be sign in
   const [errorMessage, seterrorMessage] = useState(null);
-  const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const name = useRef(null);
@@ -72,7 +70,6 @@ const Login = () => {
                   photoURL: photoURL,
                 })
               ); //adding user data to store ..u can add many things
-              navigate("/browse"); //after creating acc in fb reloacating user to the browse page using navigate fn
             })
             .catch((error) => {
               // An error occurred
@@ -96,7 +93,6 @@ const Login = () => {
           // if this api call is successful then user gets Signed in
           const user = userCredential.user;
           console.log(user);
-          navigate("/browse"); //after creating acc in fb reloacating user to the browse page using navigate fn
         })
         .catch((error) => {
           const errorCode = error.code;
