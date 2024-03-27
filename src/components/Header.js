@@ -5,19 +5,22 @@ import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { addUser,removeUser } from "../utils/userSlice";
+import { LOGO_URL } from "../utils/constants";
 
-const Header = () => {
-  //give absolute for header to overlap
-  const dispatch = useDispatch();
+//1.Sign out button logic
+//2.updating user data in redux + unsubscribing from authorization event after unmounting of header compo
+//3. jsx
+const Header = () => {//give absolute css for header to overlap with body compo
+  const dispatch = useDispatch();//used to dispatch actions to the redux store
   const navigate = useNavigate();
-  const user = useSelector(store=>store.user);
+  const user = useSelector(store=>store.user);//used to select user data from the redux store
   //console.log(user);
 
- // SIGN OUT
-  const handleSignOut = () => {
+ // 1.SIGN OUT logic
+  const handleSignOut = () => {//gets called when user clciks on signout button
     signOut(auth)
       .then(() => {
-        // if Sign-out success //no need to navigate from here that will be done by onauthstatechange() so it is empty
+        //If sign out is successful,the user is not redirected explicitly from this function. Instead, the redirection logic is handled by the onAuthStateChanged listener
       })
       .catch((error) => {
         //else error happened.
@@ -27,43 +30,46 @@ const Header = () => {
   };
 
     //UPDATING USER DATA IN REDUX STORE ON AUTHENTICATION(CODE FROM FB DOCS)
+    //why is this code added in header compo ? as its loadeded on all pages in site so auth can be checked
     useEffect(() => {
-      //each time this compo is loading(this page is loaded) its checking the auth of the user
-      //as we want to use this event listener for once only after compo loads
-      const unsubscribe = onAuthStateChanged(auth, (user) => {//onauthstate..event has unsubscribe() fn from docs which will be returned
-        //unsubsribing is done to remove this event from site if header compo gets unmounted 
-        //API call
-        if (user) {
+   //NEED OF USEEFFECT():each time this compo is loaded the function passed sets up an event listener onAuthStateChanged to track changes in the authentication state
+  //useEffect hook is responsible for a) managing the authentication state changes b) updating user data in the Redux store c) handling navigation based on the user's authentication status
+  //(event listener onAuthStateChanged to track changes in the authentication state)
+//2.
+      const unsubscribe = onAuthStateChanged(auth, (user) => {//onauthstate..event has unsubscribe() fn from docs which will be returned(API call)
+        //1st argument = auth object which represents the Firebase Authentication service
+        //The 2nd argument = callback function that will be called whenever the authentication state changes. This callback receives a user object representing the current user if they are signed in, or null if they are signed out
+        if (user) {//if a user object exists
           //if user SIGN IN /UP
-          const { uid, email, displayName, photoURL } = user;
-          dispatch(
+          const { uid, email, displayName, photoURL } = user;//info is extracted
+          dispatch(//then dispatched to the redux store using adduser action which updates the users data in redux store ...reducer fn(action)
             addUser({
               uid: uid,
               email: email,
               displayName: displayName,
               photoURL: photoURL,
             })
-          ); //adding user data to store ..u can add many data
-          //reducer fn(action)
-    navigate("/browse"); //after creating acc in fb/logging in reloacating user to the browse page using navigate fn
-
+          ); 
+    navigate("/browse");//reloacating user to the browse page using navigate fn
         } else {
           // if User SIGN OUT
           dispatch(removeUser());//no action req in this
           navigate("/");//redirecting to login page again
         }
       });
-//unsubscribe when compo unmounts
-      return ()=> unsubscribe();//if we call unsubscribe fn it will remove the onauth.. event from our browser
-
+//UNSUBSCRIBING IS DONE TO REMOVE THIS onAuthStateChanged EVENT FROM THE BROWSER IF HEADER COMPO GETS UNMOUNTED
+//unsubscribe function: fn returned by the onAuthStateChanged event listener setup
+// USE: this cleanup function is used to perform cleanup tasks when the component unmounts or before it re-renders.
+// ADVANTAGE: unsubscribing ensures that the memory associated with those event listeners is freed up, so preventing memory leaks also prevents unnecessary processing associated with handling authentication state changes when the component is no longer in use
+      return ()=> unsubscribe();
     }, []);
   
-
+//3. Rendering
   return (
     <div className="absolute w-full px-8 py-2 z-10 flex justify-between">
       <img
         className="w-48 cursor-pointer"
-        src="https://cdn.cookielaw.org/logos/dd6b162f-1a32-456a-9cfe-897231c7763c/4345ea78-053c-46d2-b11e-09adaef973dc/Netflix_Logo_PMS.png"
+        src={LOGO_URL}
         alt="logo"
       />
 

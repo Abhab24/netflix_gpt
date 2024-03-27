@@ -1,89 +1,102 @@
 import { useRef, useState } from "react";
 import Header from "./Header";
 import { checkValidateData } from "../utils/validate";
-import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-} from "firebase/auth";
+import {createUserWithEmailAndPassword,signInWithEmailAndPassword} from "firebase/auth";
 import { auth } from "../utils/firebase";
 import { updateProfile } from "firebase/auth";
 import { useDispatch } from "react-redux";
 import { addUser } from "../utils/userSlice";
+import { PHOTO_URL } from "../utils/constants";
+
+//1.Setting the issigninform state variable
+//2.form validations 
+//3.Sign up logic (+update the fb profile with name,photo )
+//4.updating redux store once again with user data for successful auth
+//5.Sign in logic
 
 const Login = () => {
+  //this state variable is used to make data dynamic in the form so that it can be used for both sign in/up
   const [isSignInForm, setisSignInForm] = useState(true); //by default form will be sign in
-  const [errorMessage, seterrorMessage] = useState(null);
-  const dispatch = useDispatch();
+  const [errorMessage, seterrorMessage] = useState(null);//for dynamic error message
 
-  const name = useRef(null);
-  const email = useRef(null);
+  const name = useRef(null);//Ref Hooks: used to reference input elements in the form. They allow accessing and manipulating the DOM elements directly
+  const email = useRef(null);//so they can be used in validation now
   const password = useRef(null);
 
-  // Sign up/in button ka click handler fn
-  const handleButtonClick = () => {
-    //FIREBASE AUTHENTICATION OF USER  (validating data in this fn)
+  const dispatch = useDispatch();//used to dispatch actions to the redux store
 
+  //1.SETS THE STATE VARIABLE TO DETERMINE WHETHER FORM IS SIGN IN OR UP SO THAT WE CAN THEN UPDATE DATA ACC TO THIS VARIABLE
+  //attached to last text in form
+  const openSignUp = () => {
+    //this fn is called on clicking last text which is intended to change form sign in to sign up and vice versa and then change that text accordingly
+    setisSignInForm(!isSignInForm);
+  };
+
+
+  const handleButtonClick = () => {
     //this will have reference to input box inside which there will be a value=___ which will have mail entered on form
-    console.log(email.current.value); //it has value of email entered
-    //1. GETTING ERROR MESSAGE (just above sign in/up button)
-    const message = checkValidateData(
+   // console.log(email.current.value); //it has value of email entered
+
+    //2. FORM VALIDATION GETTING ERROR MESSAGE (just above sign in/up button)
+    const message = checkValidateData(//this fn is in utils(validate.js) uses regex to validate mail and pass
+    //returns null if validated else error message written
       email.current.value,
       password.current.value
     );
     seterrorMessage(message);
-    console.log(message);
+   // console.log(message);
 
     if (message) return; //if error message then dont move ahead of this line
 
-    //2.SIGN IN /UP , CREATING USER ACCOUNT IN FIREBASE using email and pass
+    //3.SIGN UP logic (FIREBASE AUTHENTICATION)
+    //CREATING USER ACCOUNT IN FIREBASE using email and pass
     if (!isSignInForm) {
       //SIGN UP logic(THIS CODE IS FROM FB DOCS)
-      //STEP1: a new user is created with email,pass
-      createUserWithEmailAndPassword(
-        //this is an API
+      // a new user is created with email,pass
+      createUserWithEmailAndPassword( //this is an API
         auth, //imported
         email.current.value,
         password.current.value
       )
-        .then((userCredential) => {
-          //STEP2: update the fb profile with name and photo
-          //if response is sucess it will give a user object and signs that user in firebase automatically
-          //SO NOW WE CAN SEE A USER IN FB WHEN WE SIGN UP SUCCESSFULLY
+        // update the fb profile with name and photo
+        .then((userCredential) => {//if response is sucess it will give a user object and signs that user in firebase automatically
+          //(AFTER THIS WE CAN SEE A USER IN FB WHEN WE SIGN UP SUCCESSFULLY!!)
           const user = userCredential.user; //user object
-          console.log(user); //entire user object
+         // console.log(user); //entire user object
 
-          //TO DISPLAY USERNAME AFTER CREATING ACCOUNT(FB CODE)
           //as soon as user is successfully regitsred update profile with name , image
           updateProfile(user, {
             displayName: name.current.value,
-            photoURL: "https://avatars.githubusercontent.com/u/12824231?v=4",
+            photoURL: PHOTO_URL,
           })
+          //4. update our store once again
             .then(() => {
-              //STEP3: update our store once again
               // Profile updated!
               const { uid, email, displayName, photoURL } = user;
-              dispatch(
+
+              dispatch(//then dispatched to the redux store using adduser action which updates the users data in redux store ...reducer fn(action)
                 addUser({
                   uid: uid,
                   email: email,
                   displayName: displayName,
                   photoURL: photoURL,
                 })
-              ); //adding user data to store ..u can add many things
+              ); 
             })
-            .catch((error) => {
-              // An error occurred
+            .catch((error) => {//ye just upr vaale then kz catch hai
               seterrorMessage(error.message);
             });
         })
-        .catch((error) => {
+        .catch((error) => {//ye sbse top vaale then ka catch hai
           //else if there is an error in api it will give error code,message
           const errorCode = error.code;
           const errorMessage = error.message;
           seterrorMessage(errorCode + "-" + errorMessage);
         });
-    } else {
-      //3. SIGN IN logic
+    } 
+    
+   //5.  SIGN IN logic (FIREBASE AUTHENTICATION)
+    else {
       signInWithEmailAndPassword(
         auth,
         email.current.value,
@@ -101,12 +114,7 @@ const Login = () => {
         });
     }
   };
-  // SETS THE STATE VARIABLE TO DETERMINE WHETHER FORM IS SIGN IN OR UP SO THAT WE CAN THEN UPDATE DATA ACC TO THIS VARIABLE
-  //attached to last text in form
-  const openSignUp = () => {
-    //this fn is called on clicking last text which is intended to change form sign in to sign up and vice versa and then change that text accordingly
-    setisSignInForm(!isSignInForm);
-  };
+
 
   return (
     //Header compo,img tag,form(name of form,input name,input email,input passwsord,sign up/in button,toggle bw sign in/up) tag
