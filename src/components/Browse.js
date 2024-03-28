@@ -2,11 +2,13 @@ import Header from "./Header";
 import useNowPlayingMovies from "../hooks/useNowPlayingMovies";
 import MainContainer from "./MainContainer";
 import SecondaryContainer from "./SecondaryContainer";
+import usePopularMovies from "../hooks/usePopularMovies";
 
 //fetching movies data from tmdb api and updating it with redux store
 const Browse = () => {
- useNowPlayingMovies();
-
+ useNowPlayingMovies(); //calling CUSTOM HOOK which has the logic for fetching nowplayingmovies data uaing API + updating it in redux store
+ usePopularMovies();//CUSTOM HOOK for popularmovies 
+ 
   return (
     <div>
       <Header />

@@ -80,7 +80,7 @@ const Header = () => {//give absolute css for header to overlap with body compo
           src={user.photoURL}
           alt="user"
         />
-        <button onClick={handleSignOut} className="font-bold p-2 m-3">
+        <button onClick={handleSignOut} className="font-bold p-2 m-3 text-white">
           Sign Out
         </button>
       </div>

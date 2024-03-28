@@ -43,3 +43,8 @@ Netflix GPT
 - update store with trailer video data
 - embedded the utube video and added auto play and mute to it
 - tailwind css to make main container look good
+- build the secondary container
+- build movie list and movie card
+- found TMDB image CDN for movie cards
+- made browse page ui look better 
+- made usePopularMovies custom hook

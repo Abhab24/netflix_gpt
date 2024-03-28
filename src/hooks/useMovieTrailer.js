@@ -3,15 +3,16 @@ import { API_OPTIONS } from "../utils/constants";
 import { addTrailerVideo } from "../utils/movieSlice";
 import { useEffect } from "react";
 
-//fetch trailer video using IMDB API and updating the store wsith trailer video data
+//CUSTOM HOOK of VideoBackground compo
+//fetch trailer video using IMDB API + updates the store with trailer video data
 const MovieTrailer = (movieid) => {
   const dispatch = useDispatch();
+  console.log(movieid);
 
+  //1.
   const getMovieVideo = async () => {
     const data = await fetch(
-      "https://api.themoviedb.org/3/movie/" +
-       movieid + 
-       "/videos",
+      "https://api.themoviedb.org/3/movie/" + movieid + "/videos",
       API_OPTIONS
     );
     const json = await data.json(); //we get a list of videos of that movie
@@ -22,6 +23,7 @@ const MovieTrailer = (movieid) => {
     //if trailer is there then take it else take the 1st video from the list
     const trailer = filterdata.length ? filterdata[0] : json.results[0];
     console.log(trailer);
+    //2.
     dispatch(addTrailerVideo(trailer));
   };
 
