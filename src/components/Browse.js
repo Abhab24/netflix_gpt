@@ -3,27 +3,35 @@ import useNowPlayingMovies from "../hooks/useNowPlayingMovies";
 import MainContainer from "./MainContainer";
 import SecondaryContainer from "./SecondaryContainer";
 import usePopularMovies from "../hooks/usePopularMovies";
+import GptPage from "./GptPage";
+import { useSelector } from "react-redux";
 
 //fetching movies data from tmdb api and updating it with redux store
 const Browse = () => {
- useNowPlayingMovies(); //calling CUSTOM HOOK which has the logic for fetching nowplayingmovies data uaing API + updating it in redux store
- usePopularMovies();//CUSTOM HOOK for popularmovies 
- 
-  return (
+  const showGptPage = useSelector((store) => store.Gpt.showGptPage); //getting the value of this bool variable
+// This variable is likely used to determine whether to display the GPT search component or the main and secondary containers.
+
+  useNowPlayingMovies(); //calling CUSTOM HOOK which has the logic for fetching nowplayingmovies data uaing API + updating it in redux store
+  usePopularMovies(); //CUSTOM HOOK for popularmovies
+
+  return (//conditional rendering
+  //Fragments allow you to group multiple children elements without adding an extra node to the DOM
+  //This is done to return multiple JSX elements without needing to add a wrapper <div> or any other container element
     <div>
       <Header />
-      <MainContainer/>
-      <SecondaryContainer/>
+      {showGptPage ? (//is this is true then gpt page will be shown else main and secondary containers
+        <GptPage />
+      ) : (
+        <>
+          <MainContainer />
+          <SecondaryContainer />
+        </>
+      )}
       <div></div>
     </div>
   );
 };
 export default Browse;
-
-
-
-
-
 
 /*
 Certainly! Let's use a fictional weather API to illustrate examples of an API, an API endpoint, and an API URL:
@@ -169,5 +177,3 @@ Here are a few alternatives to using the Fetch API:
 
 These alternatives provide different ways to make HTTP requests depending on the environment and requirements of your application. While the Fetch API offers a modern and standardized approach, these alternatives remain valid choices in certain contexts.
 */
-
-

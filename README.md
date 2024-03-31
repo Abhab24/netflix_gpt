@@ -1,19 +1,12 @@
-Netflix GPT 
+# Netflix GPT 
 - create react app
 - configure Tailwind CSS
 
-:Login page
+SIGN UP/Login page via Firebase
 
-:Browse Page
-- Trailer
-- title and description
-- play button and info
-- movie suggestion
-- movie lists*n
+Browse Page: Trailer, title and description, play button and info, movie suggestion, movie lists*n
 
-:GPT page
-- search bar
-- movie suggestions
+GPT page: search bar, movie suggestions
 
 .....
 
@@ -48,3 +41,4 @@ Netflix GPT
 - found TMDB image CDN for movie cards
 - made browse page ui look better 
 - made usePopularMovies custom hook
+- GPT search page
